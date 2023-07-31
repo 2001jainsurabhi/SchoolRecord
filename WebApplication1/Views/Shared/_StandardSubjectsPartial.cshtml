@@ -1,0 +1,42 @@
+﻿@model WebApplication1.Models.Subject
+
+@{
+    var standardList = ViewBag.StandardsList as SelectList;
+}
+
+<div class="form-group">
+    @Html.LabelFor(model => model.StandardID, "Standard")
+    @Html.DropDownListFor(model => model.StandardID, standardList, "Select a standard", new { @class = "form-control", id = "ddlStandard" })
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(model => model.SubID, "Subject")
+    @Html.DropDownListFor(model => model.SubID, Enumerable.Empty<SelectListItem>(), "Select a subject", new { @class = "form-control", id = "ddlSubject" })
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("#ddlStandard").change(function () {
+                var standardId = $(this).val();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetSubjectsByStandard", "YourControllerName")',
+                    data: { standardId: standardId },
+                    success: function (data) {
+                        var subjectDropdown = $("#ddlSubject");
+                        subjectDropdown.empty();
+                        $.each(data, function (index, item) {
+                            subjectDropdown.append($("<option></option>")
+                                .val(item.Value)
+                                .html(item.Text));
+                        });
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.log(xhr.statusText);
+                    }
+                });
+            });
+        });
+    </script>
+}
